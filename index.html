@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Display Webcam Stream</title>
+
+    <style>
+        #container {
+            margin: 0 auto;
+            width: 500px;
+            height: 375px;
+            border: 10px #333 solid;
+            position: relative;
+        }
+
+        #videoElement {
+            background-color: #666;
+        }
+
+        #bulleye, #videoElement {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+    </style>
+</head>
+
+<body>
+<div class="select">
+    <label for="videoSource">Video source: </label><select id="videoSource"></select>
+</div>
+<div id="container">
+    <video autoplay="true" id="videoElement"></video>
+    <div id="bulleye">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 375">
+            <circle cx="50%" cy="50%" r="30" fill="none" stroke="red" />
+            <circle cx="50%" cy="50%" r="60" fill="none" stroke="red" />
+            <circle cx="50%" cy="50%" r="90" fill="none" stroke="red" />
+            <circle cx="50%" cy="50%" r="120" fill="none" stroke="red" />
+            <circle cx="50%" cy="50%" r="150" fill="none" stroke="red" />
+        </svg>
+    </div>
+</div>
+<script>
+  function pathList2svg (paths, test_display_viewBox) {
+    var content = ''
+    for (var i = 0; i < paths.length; i++)
+      content += '<path class="' + paths[i].cssClass + '" d="' + paths[i].d + '"/>\n'
+    var viewBox = test_display_viewBox ? ' viewBox="' + test_display_viewBox + '"' : ''
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150"' + viewBox + '>' + content + '</svg>'
+  }
+
+  function point2circlePath (center, radius) {
+    if (radius == null)
+      radius = 4
+
+    return 'M' + pp((center.x - radius), center.y)
+      + ' a' + pp(radius, radius) + ' 0 1,0 ' + pp(radius * 2, 0)
+      + ' a' + pp(radius, radius) + ' 0 1,0 ' + pp(-radius * 2, 0)
+  }
+
+  function hasGetUserMedia () {
+    return !!(navigator.mediaDevices &&
+      navigator.mediaDevices.getUserMedia)
+  }
+
+  if (hasGetUserMedia()) {
+    // Good to go!
+  } else {
+    alert('getUserMedia() is not supported by your browser')
+  }
+
+  const constraints = {
+    video: true
+  }
+
+  const video = document.querySelector('video')
+  navigator.mediaDevices.getUserMedia(constraints).then((stream) => {video.srcObject = stream})
+  const videoElement = document.querySelector('video')
+  const videoSelect = document.querySelector('select#videoSource')
+
+  navigator.mediaDevices.enumerateDevices()
+    .then(gotDevices).then(getStream).catch(handleError)
+
+  videoSelect.onchange = getStream
+
+  function gotDevices (deviceInfos) {
+    for (let i = 0; i !== deviceInfos.length; ++i) {
+      const deviceInfo = deviceInfos[i]
+      const option = document.createElement('option')
+      option.value = deviceInfo.deviceId
+      if (deviceInfo.kind === 'videoinput') {
+        option.text = deviceInfo.label || 'camera ' +
+          (videoSelect.length + 1)
+        videoSelect.appendChild(option)
+      } else {
+        console.log('Found another kind of device: ', deviceInfo)
+      }
+    }
+  }
+
+  function getStream () {
+    if (window.stream) {
+      window.stream.getTracks().forEach(function (track) {
+        track.stop()
+      })
+    }
+
+    const constraints = {
+      video: {
+        deviceId: {exact: videoSelect.value}
+      }
+    }
+
+    navigator.mediaDevices.getUserMedia(constraints).then(gotStream).catch(handleError)
+  }
+
+  function gotStream (stream) {
+    window.stream = stream // make stream available to console
+    videoElement.srcObject = stream
+  }
+
+  function handleError (error) {
+    console.error('Error: ', error)
+  }
+</script>
+</body>
+</html>

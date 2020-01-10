@@ -1,12 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>Display Webcam Stream</title>
 
     <style>
         #container {
-            margin: 0 auto;
+            margin: 0 0;
             width: 500px;
             height: 375px;
             border: 10px #333 solid;
@@ -34,12 +34,11 @@
 </head>
 
 <body>
-<a id="github" href="https://github.com/nraynaud/alignwebcam"><img width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_green_007200.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
 <div class="select">
     <label for="videoSource">Video source: </label><select id="videoSource"></select>
 </div>
 <div id="container">
-    <video autoplay="true" id="videoElement"></video>
+    <video autoplay muted id="videoElement"></video>
     <div id="bulleye">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 375">
             <circle cx="50%" cy="50%" r="30" fill="none" stroke="red" />
@@ -49,25 +48,9 @@
             <circle cx="50%" cy="50%" r="150" fill="none" stroke="red" />
         </svg>
     </div>
+    <a id="github" href="https://github.com/nraynaud/alignwebcam"><img width="149" height="149" src="https://github.blog/wp-content/uploads/2008/12/forkme_right_green_007200.png?resize=149%2C149" class="attachment-full size-full" alt="Fork me on GitHub" data-recalc-dims="1"></a>
 </div>
 <script>
-  function pathList2svg (paths, test_display_viewBox) {
-    var content = ''
-    for (var i = 0; i < paths.length; i++)
-      content += '<path class="' + paths[i].cssClass + '" d="' + paths[i].d + '"/>\n'
-    var viewBox = test_display_viewBox ? ' viewBox="' + test_display_viewBox + '"' : ''
-    return '<svg xmlns="http://www.w3.org/2000/svg" width="200" height="150"' + viewBox + '>' + content + '</svg>'
-  }
-
-  function point2circlePath (center, radius) {
-    if (radius == null)
-      radius = 4
-
-    return 'M' + pp((center.x - radius), center.y)
-      + ' a' + pp(radius, radius) + ' 0 1,0 ' + pp(radius * 2, 0)
-      + ' a' + pp(radius, radius) + ' 0 1,0 ' + pp(-radius * 2, 0)
-  }
-
   function hasGetUserMedia () {
     return !!(navigator.mediaDevices &&
       navigator.mediaDevices.getUserMedia)

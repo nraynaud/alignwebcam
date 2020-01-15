@@ -7,8 +7,8 @@
     <style>
         #container {
             margin: 0 0;
-            width: 500px;
-            height: 375px;
+            width: 1280px;
+            height: 720px;
             border: 10px #333 solid;
             position: relative;
         }
@@ -40,12 +40,14 @@
 <div id="container">
     <video autoplay muted id="videoElement"></video>
     <div id="bulleye">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 375">
-            <circle cx="50%" cy="50%" r="30" fill="none" stroke="red" />
-            <circle cx="50%" cy="50%" r="60" fill="none" stroke="red" />
-            <circle cx="50%" cy="50%" r="90" fill="none" stroke="red" />
-            <circle cx="50%" cy="50%" r="120" fill="none" stroke="red" />
-            <circle cx="50%" cy="50%" r="150" fill="none" stroke="red" />
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720">
+            <circle cx="50%" cy="50%" r="5%" fill="none" stroke="red" />
+            <circle cx="50%" cy="50%" r="10%" fill="none" stroke="pink" />
+            <circle cx="50%" cy="50%" r="15%" fill="none" stroke="red" />
+            <circle cx="50%" cy="50%" r="20%" fill="none" stroke="pink" />
+            <circle cx="50%" cy="50%" r="25%" fill="none" stroke="red" />
+            <circle cx="50%" cy="50%" r="30%" fill="none" stroke="pink" />
+            <circle cx="50%" cy="50%" r="35%" fill="none" stroke="red" />
             <line x1="50%" y1="0" x2="50%" y2="100%" stroke="orange" />
             <line x1="0" y1="50%" x2="100%" y2="50%" stroke="orange" />
         </svg>
@@ -64,12 +66,6 @@
     alert('getUserMedia() is not supported by your browser')
   }
 
-  const constraints = {
-    video: true
-  }
-
-  const video = document.querySelector('video')
-  navigator.mediaDevices.getUserMedia(constraints).then((stream) => {video.srcObject = stream})
   const videoElement = document.querySelector('video')
   const videoSelect = document.querySelector('select#videoSource')
 
@@ -100,17 +96,22 @@
       })
     }
 
-    const constraints = {
+    navigator.mediaDevices.getUserMedia({
       video: {
-        deviceId: {exact: videoSelect.value}
+        deviceId: {exact: videoSelect.value},
+        width: {min: 640, ideal: 1280},
       }
-    }
-
-    navigator.mediaDevices.getUserMedia(constraints).then(gotStream).catch(handleError)
+    }).then(gotStream).catch(handleError)
   }
 
   function gotStream (stream) {
+    console.log('stream', stream)
     window.stream = stream // make stream available to console
+    if (window.stream) {
+      window.stream.getTracks().forEach(function (track) {
+        console.log('track', track, track.getSettings())
+      })
+    }
     videoElement.srcObject = stream
   }
 
